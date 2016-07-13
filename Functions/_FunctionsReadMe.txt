@@ -1,0 +1,1 @@
+These are meant to be placed in your powershell profile as quick commands for common tasks. 
