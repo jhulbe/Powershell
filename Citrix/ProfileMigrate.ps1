@@ -1,7 +1,7 @@
 #Checks that H:\profileswitch exist, if it does it restores information to the user profile, if it doesn't it backs it up. Backups up recent items in office products, email signatures, firefox bookmarks. 
 
 $FileExists = test-path $UserDrive
-$UserDrive = '$UserDrive'
+$UserDrive = 'H:\profileswitch'
 $path = $env:APPDATA
 $user = $env:USERNAME
 $profile = Get-ChildItem "$env:APPDATA\mozilla\firefox\Profiles" | Sort-Object LastAccessTime -Descending | Select-Object -First 1 -expandproperty FullName 
