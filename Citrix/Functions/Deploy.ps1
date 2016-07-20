@@ -1,3 +1,7 @@
+﻿#Example, "Deploy C:\testfolder\testfile.cmd" would copy that file to the same path on every box in the citrix farm. 
+#Useful for quickly deploying a reg file, ini file, or config changes that need pushed. 
+
+
 function Deploy{
     Param([string]$file)
    $servers = qfarm /online | select servername
@@ -9,5 +13,3 @@ if ($server) { $server }
 else {"Copy failure"} 
   }
  }
-
-## Example "Deploy D:\startupscript\startup.cmd" would deploy startup.cmd to all online servers in the farm. 
