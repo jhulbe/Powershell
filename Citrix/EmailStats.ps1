@@ -1,0 +1,66 @@
+<#
+
+The script looks at 3 locations where I have PVS boxes. It query those desktop names and gets the count. Then I add those integers up. It then builds a body array with @()
+
+It runs daily and gives me the last time each box was rebooted, any boxes that have a zero load, and current number of users. 
+
+At the end citrixuptime.ps1 is called seperatly because I use it in other functions, that is also in my github.
+
+#>
+
+$L1Active = (Get-XASession -computername ctxdc02 | ? { $_.Browsername -ne "Location3 Citrix Desktop" -and $_.Browsername -ne "Location2 Desktop" -and $_.Browsername -ne "Location2 IS Desktop" -and $_.State -eq "Active"}).count
+$L1Disconnected = (Get-XASession -computername ctxdc01 | ? { $_.Browsername -ne "Location3 Citrix Desktop" -and $_.Browsername -ne "Location2 Desktop" -and $_.Browsername -ne "Location2 IS Desktop" -and $_.State -eq "Disconnected"}).Count
+$L2Active = (Get-XASession -computername ctxdc01 | ? { $_.Browsername -eq "Location2 Desktop" -or $_.Browsername -eq "Location2 IS Desktop" -and $_.State -eq "Active"}).Count
+$L2Disconnected = (Get-XASession -computername ctxdc01 | ? { $_.Browsername -eq "Location2 Desktop" -and $_.State -eq "Disconnected"}).Count
+$L3Active = (Get-XASession -computername ctxdc02 | ? { $_.Browsername -eq "Location3 Citrix Desktop" -and $_.State -eq "Active"}).count
+$L3Disconnected = (Get-XASession -computername ctxdc02 | ? { $_.Browsername -eq "Location3 Citrix Desktop" -and $_.State -eq "Disconnected"}).count
+$L1Total = ([int]$L1Active + [int]$L1Disconnected)
+$L2Total = ([int]$L2Active + [int]$L2Disconnected)
+$L3Total = ([int]$L3Active + [int]$L3Disconnected)
+$AllFarms = ([int]$L1Total + [int]$L2Total + [int]$L3Total)
+
+$body = @()
+
+$body += 'All Locations'
+$body += '-'*25
+$body += $AllFarms
+
+$body += '-'
+$body += 'Location1 (MOR) Total Sessions'
+$body += '-'*25
+$body += "$L1Total ($L1Disconnected Disconnected)"
+
+$body += '-'
+$body += 'Location2 (SOU) Total Sessions'
+$body += '-'*25
+$body += "$L2Total ($L2Disconnected Disconnected)"
+
+$body += '-'
+$body += 'Location3 (NHP) Total Sessions'
+$body += '-'*25
+$body += "$L3Total ($L3Disconnected Disconnected)"
+
+$body += '-'
+$body += '-'*25
+$body += 'Zero Load Servers'
+$body += '-'*25
+$body += get-xaserverload -computername ctxdc01 | sort-object servername | where {$_.load -like '0'}
+
+$body += '-'*25
+$body += 'Server Uptime'
+$body += '-'*25
+$body += C:\Scripts\citrixuptime.ps1
+
+
+$body = $body | Out-String
+
+
+$email = @{
+From = "jhulbe@jhulbe.com"
+To = "jhulbe@jhulbe.com" 
+Subject = "Citrix Status"
+SMTPServer = "smtp.Location1.com"
+Body = $body
+}
+
+send-mailmessage @email
