@@ -1,10 +1,12 @@
 <#
 
+
 The script looks at 3 locations where I have PVS boxes. It query those desktop names and gets the count. Then I add those integers up. It then builds a body array with @()
 
 It runs daily and gives me the last time each box was rebooted, any boxes that have a zero load, and current number of users. 
 
 At the end citrixuptime.ps1 is called seperatly because I use it in other functions, that is also in my github.
+
 
 #>
 
