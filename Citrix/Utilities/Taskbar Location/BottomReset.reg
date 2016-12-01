@@ -1,0 +1,6 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects2]
+"Settings"=hex:28,00,00,00,ff,ff,ff,ff,02,00,00,00,03,00,00,00,3e,00,00,00,2e,\
+  00,00,00,00,00,00,00,82,04,00,00,80,07,00,00,b0,04,00,00
+
