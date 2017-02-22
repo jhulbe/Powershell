@@ -1,7 +1,7 @@
 $PCS = get-content C:\scripts\citrix\systems.txt
 foreach ($PC in $PCS){
     invoke-command -cn $PC -ScriptBlock {
-    $users = (qwinsta /server:$PC | foreach { (($_.trim() -replace "\s+",","))} | convertfrom-csv) | Select -expandproperty username | Where {($_ -notlike "0") -and ($_ -notlike "1") -and ($_ -notlike "65*")}
+    $users = (qwinsta /server:$PC | foreach { (($_.trim() -replace "\s+",","))} | convertfrom-csv) | Select -expandproperty username | Where { $_ -notmatch '^\d' }
                 foreach($user in $users){
                      write-host "updating $user on $PC"
                         C:\utility\sysinternals\systools\psexec.exe \\$PC gpupdate /user $user
