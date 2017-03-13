@@ -1,0 +1,11 @@
+function 4each{
+    Param([string]$command)
+   $servers = Qfarm |select dnsname -ExpandProperty dnsname
+
+foreach ($server in $servers) 
+{
+"\\$server" $command
+if ($server) { $server }
+else {"Copy failure"} 
+  }
+ }
