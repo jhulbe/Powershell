@@ -4,7 +4,7 @@ function 4each{
 
 foreach ($server in $servers) 
 {
-"\\$server" $command
+C:\pstool\psexec.exe "\\$server" $command
 if ($server) { $server }
 else {"Copy failure"} 
   }
