@@ -1,0 +1,23 @@
+Foreach($esx in (Get-VMHost -Location *citrix)){
+    $vCPU = Get-VM -Location $esx | Measure-Object -Property NumCpu -Sum | select -ExpandProperty Sum
+    $esx | Select Name,@{N='pCPU';E={$_.NumCpu}},
+        @{N='vCPU';E={$vCPU}},
+        @{N='Ratio';E={[math]::Round($vCPU/$_.NumCpu,1)}}
+        }
+        
+        <# sample output
+Name                  pCPU vCPU Ratio
+----                  ---- ---- -----
+ucsc1s4                16   72   4.5
+ucsc2s4                16   97   6.1
+ucsc2s6                24   78   3.2
+ucsc4s2                24   87   3.6
+ucsc4s3                24   56   2.3
+ucsc4s4                24   60   2.5
+ucsc4s7                24   59   2.5
+ucsc4s8                24   63   2.6
+ucsc5s1                24  114   4.8
+ucsc5s2                24  106   4.4
+ucsc5s3                24   67   2.8
+
+        Sample output #>
