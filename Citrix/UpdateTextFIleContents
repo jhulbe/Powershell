@@ -1,0 +1,15 @@
+$before = "\\fileserver\share\"
+$after = "\\fileserver\share\"
+$FilePaths = (gci "\\fileserver\share\EmailApp\Users").fullname
+
+Foreach ($FilePath in $FilePaths){
+(get-content "$filepath") | %{$_ -replace [regex]::escape($before),($after)} | Set-content $Filepath
+}
+
+
+    <# Sample output
+    
+    Gets contents of user config files and updates a setting in the .txt file to point to a new config location
+    regex escape is needed because the fileserver had \\ in the name and it's not a valid regular expression
+    
+    Sample Output#>
