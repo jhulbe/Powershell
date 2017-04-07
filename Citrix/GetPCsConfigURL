@@ -1,0 +1,22 @@
+
+<#
+Script crawls through the HKEY_USERS subkeys and looks for citrix sites and grabs the configURL if it's there. This told me what PCs are configured to our old URL or new one. 
+It skips the PC if it's offline and does a write-host of the offline PC in Yellow with the if/else statements
+#>
+
+
+$computers = (get-adcomputer -searchbase "OU=New York,OU=Computers,DC=Domain,DC=com" -filter *).name
+
+foreach($computer in $computers){
+if (Test-Connection -Computername $computer -BufferSize 16 -Count 1 -Quiet){
+invoke-command -cn $computer -ScriptBlock {
+New-PSDrive -PSProvider Registry -Name HKU -Root HKEY_USERS
+$hkusers = gci HKU:\
+foreach($user in $hkusers){
+get-ItemProperty -Path "HKU:\$user\software\Citrix\Dazzle\Sites\citrix-5e6fjh92" -Name configURL -erroraction silentlycontinue
+get-ItemProperty -Path "HKU:\$user\software\Citrix\Dazzle\Sites\citrix-d7adeea8" -Name configURL -erroraction silentlycontinue
+}
+}
+}
+else{write-host $computer is offline -fore Yellow}
+}
