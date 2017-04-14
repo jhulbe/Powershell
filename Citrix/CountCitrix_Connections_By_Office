@@ -5,7 +5,7 @@ $Office = $item.office
 $Subnet = $item.subnet
 $Officecount = (get-brokersession -adminaddress $DDC -maxrecordcount 5000 | ?{$_.ConnectedViaIP -like "$subnet*"}).count
 write-host "$Office $OfficeCount" -fore cyan
-get-brokersession -adminaddress $DDC -maxrecordcount 5000 | ?{$_.ConnectedViaIP -like "$subnet*"}| ft username,ClientName,DNSName,DesktopGroupName
+get-brokersession -adminaddress $DDC -maxrecordcount 5000 | ?{$_.ConnectedViaIP -like "$subnet*"}| ft Username,SessionState,ClientName,DNSName,DesktopGroupName
 }
 
 <#
