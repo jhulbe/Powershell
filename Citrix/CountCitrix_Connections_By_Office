@@ -1,0 +1,27 @@
+$CSV = import-csv C:\scripts\offices.csv
+$DDC = CITRIXDDC.DOMAIN.COM
+Foreach($item in $CSV){
+$Office = $item.office
+$Subnet = $item.subnet
+$Officecount = (get-brokersession -adminaddress $DDC -maxrecordcount 5000 | ?{$_.ConnectedViaIP -like "$subnet*"}).count
+write-host "$Office $OfficeCount" -fore cyan
+get-brokersession -adminaddress $DDC -maxrecordcount 5000 | ?{$_.ConnectedViaIP -like "$subnet*"}| ft username,ClientName,DNSName,DesktopGroupName
+}
+
+<#
+Sample output:
+
+New York City, NY 3
+UserName      ClientName DNSName                DesktopGroupName
+--------      ---------- -------                ----------------
+DOMAIN\Steve  STEVENYCD1 CTX-SRV141.DOMAIN.com COMPANY-Desktop
+DOMAIN\John   JOHNNYCD1  CTX-SRV25.DOMAIN.com  COMPANY-Desktop
+DOMAIN\Kevin  KEVINNYCD1 CTX-SRV97.DOMAIN.com  COMPANY-Desktop
+
+Denver, CO 3
+UserName      ClientName DNSName                DesktopGroupName
+--------      ---------- -------                ----------------
+DOMAIN\Steve  STEVEDEND1 CTX-SRV141.DOMAIN.com COMPANY-Desktop
+DOMAIN\John   JOHNDEND1  CTX-SRV25.DOMAIN.com  COMPANY-Desktop
+DOMAIN\Kevin  KEVINDEND1 CTX-SRV97.DOMAIN.com  COMPANY-Desktop
+#>
