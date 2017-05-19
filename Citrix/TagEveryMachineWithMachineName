@@ -1,0 +1,26 @@
+<#
+.SYNOPSIS
+to test change line to target one -DNSName: 
+$desktops = (get-brokerdesktop -adminaddress $DDC -DNSName "oneserver.domain.com" | Select DNSName -ExpandProperty DNSName)
+Add the same to the last line, -DNSName "oneserver.domain.com"
+
+.EXAMPLE
+Output is just 
+SERVER1 {SERVER1}
+SERVER2 {SERVER2}
+SERVER3 {SERVER3}
+#>
+
+$DDC = citrixddc01.domain.com
+
+$desktops = (get-brokerdesktop -adminaddress $DDC | Select DNSName -ExpandProperty DNSName)
+Foreach($Desktop in $desktops){
+$DNSName = (get-brokerdesktop -adminaddress $DDC -DNSName "$desktop").dnsname -replace ".domain.com",""
+$UID = (get-brokerdesktop -adminaddress $DDC -DNSName "$desktop").uid
+New-BrokerTag "$DNSName" -Description "$DNSName" | Add-BrokerTag -Desktop $UID
+}
+get-brokerdesktop -adminaddress $DDC | Select DNSName,Tags
+
+
+
+
