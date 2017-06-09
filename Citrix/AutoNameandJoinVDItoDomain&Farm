@@ -1,0 +1,30 @@
+<#
+Meant to be ran as a scheduled task in my VDI Template. 
+It checks if the VM is in the domain, if not, it renames the PC and adds it to the domain
+On the next launch it runs again and sees that it is in the domain, so it installs the Citrix VDA 
+Next launch it sees it's in the domain, and has citrix. Does nothing. 
+
+The first IF for the domain check has a nested IF/ELSE to check that the VDA is installed. Change *domain.com to your domain.
+
+#>
+
+
+If ([system.net.dns]::gethostbyname(($env:computername)) | ?{$_.hostname -like "*domain.com"}){
+  Write-host PC Is in the Domain. Checking for Citrix VDA -ForegroundColor Cyan
+    If(Get-WmiObject -Class Win32_Product | Select -property Name | ?{$_.name -like "Citrix"}){
+  Write-host Citrix is installed. Nothing to do.}
+
+    Else{Write-host Installing Citrix -fore Cyan
+        C:\VMDeploy\InstallVDA.bat
+        }
+    }
+Else{
+  $ComputerName = Read-Host -Prompt "Enter PC Name without domain.com suffix"
+  Add-computer -NewName $Computername -domainname domain.com -restart
+}
+
+
+
+<# contents of the installvda.bat file
+"C:\VMDeploy\XD7.13Plat\x64\XenDesktop Setup\XenDesktopVDASetup.exe" /quiet /components vda,plugins /controllers "citrixddc01.domain.com citrixddc02.domain.com citrixddc03.domain.com citrixddc04.domain.com" /enable_hdx_ports /optimize /enable_remote_assistance /virtualmachine /exclude "Personal vDisk"
+#>
