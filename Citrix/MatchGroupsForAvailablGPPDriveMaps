@@ -40,7 +40,7 @@ If ($mode -eq "1")
 
 Elseif ($mode -eq "2")
   {
-    $users = (Get-content C:\Scripts\Citrix\MatchGroups.txt) | %{ $_ -replace " ","."} 
+    $users = (Get-content C:\Scripts\Citrix\MatchGroups.txt) | %{ $_ -replace ", ","."} 
     $UserDrives = Foreach($U in $users){(Get-aduser -filter * | Where{$_.UserPrincipalName -like "$u*"}).samaccountname | %{(get-alladgroups $_).name -match "GPP-[A-Z]{1}-\w+"}} 
     $UD = $Userdrives.substring(0,5)
 
