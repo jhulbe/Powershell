@@ -44,7 +44,7 @@ Elseif ($mode -eq "2")
     $UserDrives = Foreach($U in $users){(Get-aduser -filter * | Where{$_.UserPrincipalName -like "$u*"}).samaccountname | %{(get-alladgroups $_).name -match "GPP-[A-Z]{1}-\w+"}} 
     $UD = $Userdrives.substring(0,5)
 
-compare-object $Drives $UD | Where {$_.sideindicator -eq "<="} | Select InputObject
+    compare-object $Drives $UD | Where {$_.sideindicator -eq "<="} | Select InputObject
   }
 
 Elseif ($mode -eq "3")
