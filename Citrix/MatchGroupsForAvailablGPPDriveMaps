@@ -1,0 +1,79 @@
+<# 
+All our item level targeted GPP Groups start with GPP-DRIVELETTER. 
+This script takes a list of users from a ticket, and compares all 
+the users groups where the first 5 letters match GPP-X format and 
+outputs avaiable drive mappings I could use for new requests
+
+Get-AllAdGroups is a custom function in my profile to shorthard the group lookup
+
+function Get-AllADGroups([string]$username) {
+    get-aduser $username -properties memberof -erroraction silentlycontinue | select-object -ExpandProperty memberof | Get-ADGroup -Properties name | select-object name | sort-object name
+}
+
+#>
+
+$Drives = "GPP-F","GPP-G","GPP-I","GPP-J","GPP-K","GPP-L","GPP-M","GPP-N","GPP-O","GPP-P","GPP-Q","GPP-R","GPP-S","GPP-T","GPP-U","GPP-V","GPP-W","GPP-Y","GPP-Z"
+
+
+Write-Host {
+     Name Format
+"--------------------"
+"1.) JOHN SMITH"
+"2.) JOHN, SMITH"
+"3.) SMITH JOHN"
+"4.) SMITH, JOHN"
+"5.) JSMITH"
+}
+
+
+$mode = Read-host -prompt "What name format is your list?"
+
+
+If ($mode -eq "1")
+  {
+    $users = (Get-content C:\Scripts\Citrix\MatchGroups.txt) | %{ $_ -replace " ","."} 
+    $UserDrives = Foreach($U in $users){(Get-aduser -filter * | Where{$_.UserPrincipalName -like "$u*"}).samaccountname | %{(get-alladgroups $_).name -match "GPP-[A-Z]{1}-\w+"}} 
+    $UD = $Userdrives.substring(0,5)
+
+    compare-object $Drives $UD | Where {$_.sideindicator -eq "<="} | Select InputObject
+  }
+
+Elseif ($mode -eq "2")
+  {
+    $users = (Get-content C:\Scripts\Citrix\MatchGroups.txt) | %{ $_ -replace " ","."} 
+    $UserDrives = Foreach($U in $users){(Get-aduser -filter * | Where{$_.UserPrincipalName -like "$u*"}).samaccountname | %{(get-alladgroups $_).name -match "GPP-[A-Z]{1}-\w+"}} 
+    $UD = $Userdrives.substring(0,5)
+
+compare-object $Drives $UD | Where {$_.sideindicator -eq "<="} | Select InputObject
+  }
+
+Elseif ($mode -eq "3")
+  {
+    $users = (Get-content C:\Scripts\Citrix\MatchGroups.txt) | %{ $_ -replace " ",", "} 
+    $UserDrives = Foreach($U in $users){(Get-aduser -filter * | Where{$_.Name -like "$u*"}).samaccountname | %{(get-alladgroups $_).name -match "GPP-[A-Z]{1}-\w+"}} 
+    $UD = $Userdrives.substring(0,5)
+
+    compare-object $Drives $UD | Where {$_.sideindicator -eq "<="} | Select InputObject
+  }
+
+Elseif ($mode -eq "4")
+  {
+    $users = (Get-content C:\Scripts\Citrix\MatchGroups.txt) 
+    $UserDrives = Foreach($U in $users){(Get-aduser -filter * | Where{$_.UserPrincipalName -like "$u*"}).samaccountname | %{(get-alladgroups $_).name -match "GPP-[A-Z]{1}-\w+"}}
+      
+    $UD = $Userdrives.substring(0,5)
+
+    compare-object $Drives $UD | Where {$_.sideindicator -eq "<="} | Select InputObject
+  }
+
+Elseif ($mode -eq "5")
+  {
+    $users = (Get-content C:\Scripts\Citrix\MatchGroups.txt) 
+    $UserDrives = Foreach($U in $users){(Get-aduser -Filter {SamAccountName -eq $U}).samaccountname | %{(get-alladgroups $_).name -match "GPP-[A-Z]{1}-\w+"}}
+    $UD = $Userdrives.substring(0,5)
+
+    compare-object $Drives $UD | Where {$_.sideindicator -eq "<="} | Select InputObject
+  }
+
+
+
