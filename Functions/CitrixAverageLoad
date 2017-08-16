@@ -1,0 +1,4 @@
+function AverageLoad 
+{
+((Get-BrokerMachine -AdminAddress DDC.domain.com -maxrecordcount 5000 | Where {($_.RegistrationState -eq "registered") -and ($_.dnsname -like "*ctxap*")}).sessioncount | Measure -Average).average
+}
