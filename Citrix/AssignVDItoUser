@@ -1,0 +1,31 @@
+
+<#
+.DESCRIPTION
+    Prompts for user PC name and the username. Then quickly assigns the VM to a user after the helpdesk installed the VDI software. Only works with 1 pc name and 1 user. 
+.NOTES
+    Adds Machine to Machine Catalog
+    Adds Machine to the Delivery Group
+    Adds user to the Domain group that is assigned to the Delivery Group
+    Assigns user to desktop. Needed when you have a 1:1 and not 1:many pool. 
+    
+    To get your CatalogUID (Get-BrokerCatalog | Select name,uid)
+    To get your Delivery Groups (Get-BrokerDesktopGroup | Select Name,UID)
+.EXAMPLE
+    MachineName[0]: PC1
+    MachineName[1]: 
+    UserName[0]: User1
+    UserName[1]: 
+       Completed
+#>
+
+
+
+Param (
+	[Parameter(Mandatory=$True)][Array]$MachineName,
+    [Parameter(Mandatory=$True)][Array]$UserName
+)
+
+New-BrokerMachine -AdminAddress CITRIX-DDC01 -CatalogUID "3" -MachineName $MachineName
+Add-BrokerMachinesToDesktopGroup -Catalog "Win 10 VDI" -desktopgroup "Win10-Desktops" -Count 1
+Add-ADGroupMember "VDI-Desktop" $username
+Add-BrokerUser -Name DOMAIN\$Username -PrivateDesktop DOMAIN\$MachineName
