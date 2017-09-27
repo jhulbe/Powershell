@@ -11,7 +11,7 @@
     To get your CatalogUID (Get-BrokerCatalog | Select name,uid)
     To get your Delivery Groups (Get-BrokerDesktopGroup | Select Name,UID)
 .EXAMPLE
-	H:\AssignVDItoUser.ps1
+	PS H:\> .\AssignVDItoUser.ps1
 	Machine Name to add: TESTUSERVM1
 	UserName to bind to above machine: TESTUSER 
         output of commands
