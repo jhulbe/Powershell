@@ -16,3 +16,4 @@ foreach ($VM in get-content “c:\scripts\citrix\deploy.txt”)
 {
 Get-NetworkAdapter -vm $VM | select MacAddress
 }
+
