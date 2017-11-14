@@ -1,0 +1,16 @@
+
+<#
+.Examples
+Check-InstalledSoftware PCNAME SOFTWARE
+#>
+
+function Check-InstalledSoftware ([string]$Server,[string]$Software)  {
+
+invoke-command -ComputerName $server -ArgumentList $software -scriptblock {
+
+    get-Itemproperty -Path HKLM:\software\Microsoft\Windows\CurrentVersion\Uninstall\* | 
+        where-object {$_.DisplayName -like "*$args[0]*"} | 
+            select DisplayName
+}
+
+}
