@@ -1,0 +1,102 @@
+Add-PSSnapin Citrix*
+
+Clear-Variable suptime -ErrorAction SilentlyContinue
+
+#Filter server names I care about the uptime for. This mainly excludes my Windows 7 and Developer boxes. 
+
+    $Servers = Get-BrokerMachine -AdminAddress pvw-ctxddc01 -maxrecordcount 5000 | 
+        ?{($_.desktopgroupname -like "EASTCOAST**") -or `
+        ($_.desktopgroupname -like "CENTRAL*") -or `
+        ($_.desktopgroupname -like "WESTCOAST*")} | 
+        Select dnsname -ExpandProperty Dnsname | Sort dnsname     
+     
+#Blank array $suptime that we'll put the server uptime in with the foreach loop below
+
+    $Suptime += @()
+        
+                    foreach($Server in $Servers)        
+        {
+            $wmi = Get-WmiObject -class Win32_OperatingSystem -computer $server
+            $LBTime = $wmi.ConvertToDateTime($wmi.Lastbootuptime)
+            [TimeSpan]$uptime = New-TimeSpan $LBTime $(get-date)
+            $SUptime += "'PC' $($server) 'Uptime:' $($uptime.days) 'Days' $($uptime.hours) 'Hours' $($uptime.minutes) 'Minutes' $($uptime.seconds) 'Seconds' " | out-string
+        }
+        
+    
+#Set your DDCs here in the DDCArray, and it randomly picks one to run the script against. 
+    
+    $DDCARRAY = 'DDC01-East','DDC02-East','DDC01-West','DDC02-West'       
+    $DDC = $DDCARRAY[(Get-Random -Maximum ([array]$DDCARRAY).count)]
+
+#Gets active and disconnected sessions for each desktop group
+#Totals them up at the bottom
+
+
+    $EAST7X = (Get-BrokerSession -maxrecordcount 5000 -adminaddress $DDC | ?{($_.desktopgroupname -like "EASTCOAST*") -and ($_.sessionstate -like "Active")}).count
+    $CENTRAL7X = (Get-BrokerSession -maxrecordcount 5000 -adminaddress $DDC | ?{($_.desktopgroupname -like "CENTRAL*") -and ($_.sessionstate -like "Active")}).count
+    $WEST7X = (Get-BrokerSession -maxrecordcount 5000 -adminaddress $DDC | ?{($_.desktopgroupname -like "WESTCOAST*") -and ($_.sessionstate -like "Active")}).count
+
+    $EAST7XDisc = (Get-BrokerSession -maxrecordcount 5000 -adminaddress $DDC | ?{($_.desktopgroupname -like "EASTCOAST*") -and ($_.sessionstate -like "Disconnected")}).count
+    $CENTRAL7XDisc = (Get-BrokerSession -maxrecordcount 5000 -adminaddress $DDC | ?{($_.desktopgroupname -like "CENTRAL*") -and ($_.sessionstate -like "Disconnected")}).count
+    $WEST7XDisc = (Get-BrokerSession -maxrecordcount 5000 -adminaddress $DDC | ?{($_.desktopgroupname -like "WESTCOAST*") -and ($_.sessionstate -like "Disconnected")}).count
+
+    $OtherDesktops = (Get-BrokerSession -maxrecordcount 5000 -adminaddress $DDC | ?{($_.desktopgroupname -notlike "EASTCOAST*") -and ($_.desktopgroupname -notlike "CENTRAL*") -and ($_.desktopgroupname -notlike "Sen*")}).count
+
+    $EastTotal = ([int]$EAST7X + [int]$EAST7XDisc)
+    $CentralTotal = ([int]$CENTRAL7X + [int]$CENTRAL7XDisc)
+    $WestTotal = ([int]$WEST7X + [int]$WEST7XDisc)
+    $AllFarms = ([int]$EastTotal + [int]$CentralTotal + [int]$WestTotal + [int]$OtherDesktops)
+
+#unregistered VDAs
+
+    $Unregistered = get-brokermachine -MaxRecordCount 5000 | ?{$_.registrationstate -ne "Registered"} | Select DNSName | out-string
+
+
+#build the email into blank array
+
+    $body = @()
+
+    $body += ''
+    $body += 'East Coast Total Sessions'
+    $body += '-'*25
+    $body += "$EAST7X ($EAST7XDisc)"
+
+    $body += ''
+    $body += 'Central Total Sessions'
+    $body += '-'*25
+    $body += "$CENTRAL7X ($CENTRAL7XDisc)"
+
+    $body += ''
+    $body += 'West Coast Total Sessions'
+    $body += '-'*25
+    $body += "$WEST7X ($WEST7XDisc)"
+
+    $body += ''
+    $body += "Unregistered VDAs"
+    $body += "$unregistered"
+    $body += ''
+
+    $body += 'Server Uptimes from desktop groups EAST*, CENTRAL*, and WEST*'
+    $body += ''
+    $body += "$Suptime"
+        
+
+
+    $body =     $body | Out-String
+
+
+#send the email
+
+    $email = @{
+        From = "Citrix.Admins@Contoso.com"
+        To = "Citrix.Admins@Contoso.com" 
+        Subject = "Citrix Status"
+        SMTPServer = "smtp.contoso.com"
+        Body = $body
+}
+
+send-mailmessage @email
+
+
+#For testing out to a file instead of spamming your smtp server
+#    $body | out-file .\emailstats.html
