@@ -1,0 +1,20 @@
+Outputs every users on a machines SID, and their proxy config below it. 
+
+
+$computers = (Get-AdComputer -SearchBase "OU=Servers,DC=contoso,DC=com" -Filter * | Sort name).name
+
+Foreach ($computer in $computers){
+    write-host "$computer" -fore green
+            invoke-command -cn $computer -ScriptBlock {
+                New-PSDrive -PSProvider Registry -Name HKU -Root HKEY_USERS
+                $hkusers = gci HKU:\ | ?{($_ -notlike "*classes") -and ($_ -like "*1-5-21*")}
+                    foreach($user in $hkusers){
+                            Write-host $User -fore green
+(Get-ItemProperty "HKU:\$user\SOFTWARE\Microsoft\windows\CurrentVersion\Internet Settings" -Name ProxyEnable -erroraction SilentlyContinue).ProxyEnable
+(Get-ItemProperty "HKU:\$user\SOFTWARE\Microsoft\windows\CurrentVersion\Internet Settings" -Name ProxyServer -erroraction SilentlyContinue).ProxyServer
+(Get-ItemProperty "HKU:\$user\SOFTWARE\Microsoft\windows\CurrentVersion\Internet Settings" -Name ProxyOverRide -erroraction SilentlyContinue).ProxyOverride
+
+}
+}
+}
+
