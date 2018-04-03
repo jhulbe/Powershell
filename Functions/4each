@@ -1,11 +1,18 @@
-function 4each{
-    Param([string]$command)
-   $servers = Qfarm |select dnsname -ExpandProperty dnsname
+#qfarm is a citrix function that calls all active hosts in the citrix farm. This 4each function runs a job on all citrix boxes. 
+#Example:   4each {get-item C:\App\Config\settings.xml | Remove-item ; copy-item \\server\share\app\config\settings.xml C:\app\Config\Settings.xml}
+#Remove the Wait-job | Recieve-Job to run on all servers at once
+#
 
-foreach ($server in $servers) 
-{
-C:\pstool\psexec.exe \\$server $command
-if ($server) { $server }
-else {"Copy failure"} 
-  }
- }
+function 4each{
+    [CmdletBinding()]
+    Param(
+        [parameter(mandatory=$true, position=0)]
+        [scriptblock]$Command
+    )
+    $localhost = hostname
+    $Computers = (qfarm).DnsName
+    foreach($Computer in $Computers){
+        invoke-command -computername $Computer -scriptblock $Command -asjob | Wait-job | Receive-Job 
+    }
+
+}
