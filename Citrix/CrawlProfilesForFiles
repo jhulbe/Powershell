@@ -1,0 +1,14 @@
+#Generate a list of profile names
+  $Profiles = (GCI \\server\share).name
+
+#loop through each profile and search it for a folder
+  Foreach($Profile in $profiles){
+#test the file exsist, and then write it to the console and delete it
+    If (Test-path "\\server\share\$profile\UPM_Profile\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\Server Manager.lnk")
+        {
+        Write-host "Removing file from $profile"
+        Remove-Item "\\server\share\$profile\UPM_Profile\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\Server Manager.lnk"
+        }
+    Else{$null}
+                                }
+        
