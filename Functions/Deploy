@@ -1,0 +1,18 @@
+#Function Deploys a file or folder to all Servers in the Citrix farm. 
+#.Example 
+# Deploy C:\windows\system32\cmd.exe
+#
+
+function Deploy{
+        Param([string]$file)
+            if(test-path $file -pathtype leaf){
+                   $servers = (qfarm).dnsname
+foreach ($server in $servers){
+    
+	copy-item -path $file -Destination "\\$server\$($file.replace(":", "$"))" -ErrorAction silentlyContinue -recurse -force -PassThru  | out-null
+if(Test-Path "\\$server\$($file.replace(":", "$"))"){Write-Host "\\$server\$($file.replace(":", "$"))" copied -fore yellow}
+Else{Write-host $server failed -fore cyan}
+	                             }
+                                              }
+            Else { GCI $file | %{deploy $_.fullname}}
+                }
