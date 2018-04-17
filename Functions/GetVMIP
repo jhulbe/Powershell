@@ -1,0 +1,8 @@
+#Sometimes DNS, nslookup, and ping -a all fail at getting what an IP address belongs to. 
+#This function queries VMWare and gets any VMs with an IP address
+#.Example
+#Get-VMIP 192.168.1.50
+
+function Get-VMIP([string]$VM){
+Get-VM $VM| Select Name, @{N="IP Address";E={@($_.guest.IPAddress[0])}}
+}
