@@ -1,0 +1,6 @@
+
+#Function lets me take a users sid from the registry and gives me the username. 
+
+function Sid2User([string]$sid) {
+get-aduser -filter 'sid -like "'$sid'"'
+}
