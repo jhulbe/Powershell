@@ -1,0 +1,15 @@
+#Get-OpenFiles FILESERVER, gives me the currently opened files on the box. 
+
+function Get-OpenedFiles([string]$Filelocation) {$(
+    $item = New-Object PSObject
+    switch -regex (openfiles /query /s $Filelocation /fo list) {
+        '([^:]+):\s+(.*)$' {
+            $item | Add-Member NoteProperty $Matches[1] $Matches[2]
+        }
+        '^$' {
+            if ($item) { $item }
+            $item = New-Object PSObject
+        }
+    }
+) | sort 'Accessed By' | ft 'Accessed By','Open File (Path\executable)' -auto
+}
