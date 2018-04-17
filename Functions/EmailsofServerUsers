@@ -1,0 +1,23 @@
+#If I need to email all users on a machine to log off, so I can reboot it. 
+#Dependant on GET-TSSession function that is built on qwinsta formating
+#.Example
+# EmailOfServerUsers RDS-Server01
+
+
+function EmailsofServerUsers([string]$PC) {
+  (get-tssessions -ComputerName $PC | ?{$_.username -notlike "[0-9]*"}).username | %{(Get-aduser $_).userprincipalname}
+}
+
+function Get-TSSessions {
+    param(
+        $ComputerName = "localhost"
+    )
+
+    qwinsta /server:$ComputerName |
+    #Parse output
+    ForEach-Object {
+        $_.Trim() -replace "\s+",","
+    } |
+    #Convert to objects
+    ConvertFrom-Csv
+}
