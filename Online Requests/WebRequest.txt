@@ -1,4 +1,4 @@
-https://www.reddit.com/r/PowerShell/comments/8d5877/invokewebrequest_help_complete_noob/
+# Request answered from : https://www.reddit.com/r/PowerShell/comments/8d5877/invokewebrequest_help_complete_noob/
 
 $Data = Invoke-restMethod -URI `
 "https://api.eslgaming.com/play/v1/leagues/174660/ranking?limit=100&offset=0" -Headers @{"Origin"="https://play.eslgaming.com"; "Accept-Encoding"="gzip, deflate, br"; "Accept-Language"="en-US,en;q=0.9"; "User-Agent"="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.117 Safari/537.36"; "Accept"="application/json, text/plain, */*"; "Referer"="https://play.eslgaming.com/echoarena/europe/echoarena/major/vrclechoarena-europe/cup-30-1/rankings/"; "X-Requested-With"="XMLHttpRequest"}`
