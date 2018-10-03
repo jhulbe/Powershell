@@ -1,0 +1,37 @@
+$path = "This is a test.docx"
+
+$Word = new-object -ComObject "Word.Application"
+$Word.Visible = $True
+$Word.Documents.Open($path)
+
+$wdFindContinue = 1
+$MatchCase = $False 
+$MatchWholeWord = $true
+$MatchWildcards = $False 
+$MatchSoundsLike = $False 
+$MatchAllWordForms = $False 
+$Forward = $True 
+$Wrap = $wdFindContinue 
+$Format = $False 
+$wdReplaceNone = 0 
+$wdFindContinue = 1 
+$ReplaceAll = 2
+
+$FindText = "\\fileserver\share\" 
+$ReplaceWith = "\\fileserver\new_share\" 
+
+$Word.Selection.Find.Execute($FindText,$MatchCase,$MatchWholeWord, ` 
+$MatchWildcards,$MatchSoundsLike,$MatchAllWordForms,$Forward,` 
+$Wrap,$Format,$ReplaceWith,$ReplaceAll) 
+
+$FindText = "This is a test"
+$ReplaceWith = "This is not a test" 
+
+$Word.Selection.Find.Execute($FindText,$MatchCase,$MatchWholeWord, ` 
+$MatchWildcards,$MatchSoundsLike,$MatchAllWordForms,$Forward,` 
+$Wrap,$Format,$ReplaceWith,$ReplaceAll) 
+
+
+$Word.Close() 
+
+$Word.Application.Quit()
