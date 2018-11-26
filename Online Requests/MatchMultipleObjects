@@ -1,0 +1,25 @@
+$accounts = @()
+
+$account1 = [PSCustomObject]@{
+Name = 'James'
+Info = 'Dude'
+LogonWorkstation = 'Computer'
+}
+
+$account2 = [PSCustomObject]@{
+Name = 'Max'
+Info = 'Dudette'
+LogonWorkstation = 'Laptop'
+}
+
+$account3 = [PSCustomObject]@{
+Name = 'Steve'
+Info = 'Max'
+LogonWorkstation = 'Laptop'
+}
+
+$accounts += $account1
+$accounts += $account2
+$accounts += $account3
+
+$accounts | Where-Object -FilterScript {$_.Name,$_.Info,$_.LogonWorkstations -match "Max|Laptop"}
