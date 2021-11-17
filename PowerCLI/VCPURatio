@@ -1,5 +1,5 @@
 Foreach($esx in (Get-VMHost -Location *citrix)){
-    $vCPU = Get-VM -Location $esx | Measure-Object -Property NumCpu -Sum | select -ExpandProperty Sum
+    $vCPU = Get-VM -Location $esx | ?{$_.PowerState -eq "PoweredOn"} | Measure-Object -Property NumCpu -Sum | select -ExpandProperty Sum
     $esx | Select Name,@{N='pCPU';E={$_.NumCpu}},
         @{N='vCPU';E={$vCPU}},
         @{N='Ratio';E={[math]::Round($vCPU/$_.NumCpu,1)}}
